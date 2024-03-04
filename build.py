@@ -550,7 +550,11 @@ EMPTY_ELEMENTS = {
 
 # These are elements that need special handling.
 SPECIAL_ELEMENTS = {
+    "anchor": [],
     "comment": [],
+    "doctype": [],
+    "markdown": [],
+    "script": [],
     "textarea": [
         "autocomplete",
         "autofocus",
@@ -674,8 +678,7 @@ def generator():
 
     logger.info("Generating ...")
 
-    ELEMENTS.append("# @formatter:off\n")
-    ELEMENTS.append("# Elements")
+    ELEMENTS.append("\n\n# Elements")
 
     logger.info("Standard Elements ...")
     for cname in STANDARD_ELEMENTS.keys():
@@ -685,13 +688,13 @@ def generator():
             continue
         if class_name in SPECIAL_ELEMENTS:
             continue
-        if class_name in RENAMED_EXPORTS:
-            class_def = "# " + class_def
+        if class_name in RENAMED_EXPORTS.keys():
+            continue
         ELEMENTS.append(class_def)
         logger.info(ELEMENTS[-1])
         ALL.append(f"'{class_name}'")
 
-    ELEMENTS.append("\n# Empty Elements")
+    ELEMENTS.append("\n\n# Empty Elements")
 
     logger.info("Empty Elements ...")
     for cname in EMPTY_ELEMENTS.keys():
@@ -703,20 +706,25 @@ def generator():
         logger.info(ELEMENTS[-1])
         ALL.append(f"'{class_name}'")
 
-    ELEMENTS.append("\n# End Generated\n# @formatter:off")
+    ELEMENTS.append("\n# End Generated")
 
     # Renaming of exports
     logger.info("Renaming Elements ...")
     for c in RENAMED_EXPORTS.keys():
-        del ALL[ALL.index(f"'{c.upper()}'")]
-        ALL.append(f"'{RENAMED_EXPORTS[c]}'")
+        if c in ALL:
+            del ALL[ALL.index(f"'{c.upper()}'")]
+
+    # Renaming of exports
+    logger.info("Special Elements ...")
+    for c in SPECIAL_ELEMENTS.keys():
+        ALL.append(f"'{c.upper()}'")
 
     # template = ""
     with open("template.py") as f:
         template = f.read()
 
     spacer = " " * TAB_WIDTH
-    _ALL = f",\n{spacer}".join(ALL)
+    _ALL = f",\n{spacer}".join(sorted(ALL))
 
     template = template.replace("# all", f"__all__ = [\n{spacer}{_ALL}\n]")
     template = template.replace("# elements", "\n".join(ELEMENTS))

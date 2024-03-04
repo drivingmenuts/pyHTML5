@@ -1,9 +1,15 @@
+import logging
+import markdown
+
+logger = logging.getLogger(__name__)
+
 __all__ = [
     "clean_attribute",
     "mk_props",
     "Node",
     "Element",
     "EmptyElement",
+    "Text",
 ]
 
 
@@ -42,9 +48,10 @@ class Node:
     def __init__(self, *children, **attributes):
         self._tag = "?"
         self._children = children
+        logger.debug(f"{attributes.keys()}")
         for k in attributes.keys():
             if k[:1] != "_":
-                raise ValueError(f"invalid attribute/event name: {k}")
+                raise ValueError(f"Invalid attribute/event name: '{k}' should be '_{k}'.")
         self._attributes = attributes
 
     @property
@@ -86,6 +93,21 @@ class Comment(Node):
         return f"<!-- {str(self._children[0])} -->"
 
 
+class Text:
+    """create a text node"""
+    _template = None
+    _entries = {}
+
+    def __init__(self, template, entries=None):
+        self._template = template
+        self._entries = entries
+
+    def __str__(self):
+        for k, v in self._entries.items():
+            self._template = self._template.replace(f"{{{k}}}", str(v))
+        return markdown.markdown(self._template)
+
+
 if __name__ == "__main__":
     # @formatter:off
     class P(Element): pass
@@ -96,3 +118,4 @@ if __name__ == "__main__":
     print(Comment("This is a comment"))
     print(P("This is a paragraph", _style="color:red; font-size:20px;", _id="p1"))
     print(BR(_class="br"))
+    print(Text("{name} is {age} *years* \{old\}.", {"name": "John", "age": 30}))
