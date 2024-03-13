@@ -682,14 +682,14 @@ def generator():
 
     logger.info("Standard Elements ...")
     for cname in STANDARD_ELEMENTS.keys():
-        class_name = cname.upper()
-        class_def = f"class {class_name}(Element): pass"
         if cname in DEPRECATED_ELEMENTS:
             continue
-        if class_name in SPECIAL_ELEMENTS:
+        if cname in SPECIAL_ELEMENTS:
             continue
-        if class_name in RENAMED_EXPORTS.keys():
+        if cname.upper() in RENAMED_EXPORTS.keys():
             continue
+        class_name = cname.upper()
+        class_def = f"class {class_name}(Element): pass"
         ELEMENTS.append(class_def)
         logger.info(ELEMENTS[-1])
         ALL.append(f"'{class_name}'")
@@ -698,10 +698,14 @@ def generator():
 
     logger.info("Empty Elements ...")
     for cname in EMPTY_ELEMENTS.keys():
-        class_name = cname.upper()
-        class_def = f"class {class_name}(Element): pass"
         if cname in DEPRECATED_ELEMENTS:
             continue
+        if cname in SPECIAL_ELEMENTS:
+            continue
+        if cname.upper() in RENAMED_EXPORTS.keys():
+            continue
+        class_name = cname.upper()
+        class_def = f"class {class_name}(EmptyElement): pass"
         ELEMENTS.append(class_def)
         logger.info(ELEMENTS[-1])
         ALL.append(f"'{class_name}'")

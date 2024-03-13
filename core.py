@@ -4,7 +4,7 @@ import markdown
 logger = logging.getLogger(__name__)
 
 __all__ = [
-    "clean_attribute",
+    "mk_attrs",
     "mk_props",
     "Node",
     "Element",
@@ -13,9 +13,9 @@ __all__ = [
 ]
 
 
-def clean_attribute(attribute: str,
-                    lowercase_props: bool = True,
-                    allow_underscore: bool = True) -> str:
+def mk_attrs(attribute: str,
+             lowercase_props: bool = True,
+             allow_underscore: bool = True) -> str:
     """The leading underscore is required to prevent collision with reserved words.."""
     attribute = attribute[1:] if attribute[:1] == "_" else attribute
 
@@ -33,7 +33,7 @@ def mk_props(properties: dict) -> str:
         plist = []
         for key in properties.keys():
             value = properties[key]
-            plist.append(f'{clean_attribute(key)}="{value}"')
+            plist.append(f'{mk_attrs(key)}="{value}"')
         return " " + " ".join(plist)
     else:
         return ""
